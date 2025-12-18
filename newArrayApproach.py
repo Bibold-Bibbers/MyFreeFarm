@@ -4,12 +4,14 @@ from mouseMovement import MouseMovement
 from locationVariable import *
 import numpy
 import time
+from startingValues import XYKoordinatenLabtops
 
 
 
 class Acker:
-    def __init__(self, AckerPos : Location, ernteSymbolPos : Location, pflanzenSymbolPos : Location, waterSymbolPos : Location):
+    def __init__(self, AckerPos : Location, ernteSymbolPos : Location, pflanzenSymbolPos : Location, waterSymbolPos : Location, startingCordinates : XYKoordinatenLabtops):
         self.AckerPos = AckerPos
+        self.startingCoordinates = startingCordinates
         self.AckerRows = 10
         self.AckerColumns = 12
         self.ernteSymbolPos = ernteSymbolPos
@@ -22,14 +24,15 @@ class Acker:
 
     def fillFullFieldArray(self, full :bool):
         if full:
-            startingX = 855
+            startingX = self.startingCoordinates.getXStart()
             for col in range(self.AckerColumns):
-                startingY = 460
+                startingY = self.startingCoordinates.getYStart()
                 for row in range(self.AckerRows):
                     self.fieldArray[col][row] = SingleField(True, None, None, startingX, startingY, None)
                     startingY += 40
                 startingX += 40
         else:
+            ##Muss noch angepasst werden mit den startingCoordinates
             AckerRows = 6
             AckerColumns = 7
             startingX = 930
@@ -39,19 +42,17 @@ class Acker:
                     self.fieldArray[col][row] = SingleField(True, None, None, startingX, startingY, None)
                     startingY += 40
                 startingX += 40
-
-
-
             
+
 
     def testFieldXY(self):
 
         ##wenn es das ganze Feld ist muss die Range mehr sein
-        for row in range(6):
-            for col in range(7):
+        for row in range(10):
+            for col in range(12):
                 x = self.fieldArray[col][row].getXBegin()
                 y = self.fieldArray[col][row].getYBegin()
-                print(x)
+                print(f'x:{x} y:{y}  col:{col}, row:{row}')
                 self.mouseMovement.moveTo(x,y)
                 time.sleep(1)
 
