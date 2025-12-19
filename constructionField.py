@@ -89,12 +89,13 @@ class Acker:
         self.mouseMovement.leftClick()
 
     def checkEverySingleField(self):
+        fieldsFreeFromStuff = 0
         for row in range(self.AckerRows):
             for col in range(self.AckerColumns):
-                self.fieldArray[col][row].setIsFreeFromWeeds(row, col)
-                print(f'row: {row +1}, col: {col+1}, isFreeFromWeed: {self.fieldArray[col][row].getIsFreeFromWeeds()}')
+                fieldsFreeFromStuff += self.fieldArray[col][row].setIsFreeFromWeeds(row, col)
+                #print(f'row: {row +1}, col: {col+1}, isFreeFromWeed: {self.fieldArray[col][row].getIsFreeFromWeeds()}')
 
-
+        print(fieldsFreeFromStuff)
 
 
     def harvestPlantWater(self, fertigePflanzenPfad, anbauPflanzePfad, withHarvest: bool =True, withWater: bool =True, withPlanting: bool =True):
@@ -113,8 +114,17 @@ class Acker:
 
 
 class SingleField:
+
+    WEED_COST = {
+        "sc/acker/grassGrey.png" : 2.5,
+        "sc/acker/darkStoneGrey.png" : 30,
+        "sc/acker/whiteStone.png" : 180,
+        "sc/acker/bugsGrey.png" : 500
+    }
+
     def __init__(self, isFreeFromWeeds, currentCrop, currentCropPlantedTime, xBegin, yBegin, connectedCrop):
         self.isFreeFromWeeds = isFreeFromWeeds
+        self.typeOfWeed = None
         self.currentCrop = currentCrop
         self.currentCropPlantedTime = currentCropPlantedTime
         self.xBegin = xBegin
@@ -125,10 +135,11 @@ class SingleField:
 
     def getConfidenceFromTwoPictures(self, pictureLink, screenshot):
         pictureField = cv2.imread(pictureLink, 0)
-
-        res = cv2.matchTemplate(pictureField, screenshot, cv2.TM_CCOEFF_NORMED)
+        if pictureField is None: return 0
+        res = cv2.matchTemplate(screenshot,pictureField, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, _ = cv2.minMaxLoc(res)
         return max_val
+    
     
     def setIsFreeFromWeeds(self, row, col):
         vergleichsBilder = ["sc/acker/bugsGrey.png","sc/acker/darkStoneGrey.png","sc/acker/grassGrey.png","sc/acker/whiteStoneGrey.png","sc/acker/emptyTileGrey.png"]
@@ -142,11 +153,23 @@ class SingleField:
             if conf > highestScore:
                 highestScore = conf
                 best_bild = bild
-        print(f'{best_bild} confidence: {highestScore}')
-        if (best_bild == "sc/acker/emptyTile.png"):
-            return
+        #print(f'{best_bild} confidence: {highestScore}')
+        if (best_bild == "sc/acker/emptyTileGrey.png"):
+            self.isFreeFromWeeds = True
+            return 1
         else:
-            self.isFreeFromWeeds = False
+            if (highestScore < 0.5):
+                self.isFreeFromWeeds = True
+                print(f'Hier ist ein Tile das nicht erkannt wurde - row:{row+1}, col{col+1}, confidence:{highestScore} ----- Best Bild:{best_bild}')
+                return 1
+            else:
+                self.isFreeFromWeeds = False
+                self.typeOfWeed = best_bild
+                return 0
+            
+    def getPriceOfWeed(self):
+        return self.WEED_COST[self.typeOfWeed, 0]
+
 
     def getIsFreeFromWeeds(self):
         return self.isFreeFromWeeds
