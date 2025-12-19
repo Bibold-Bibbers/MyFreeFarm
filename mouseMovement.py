@@ -1,4 +1,4 @@
-from locationVariable import *
+from Location import *
 import pyautogui
 
 class MouseMovement:

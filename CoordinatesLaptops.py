@@ -1,4 +1,4 @@
-from locationVariable import *
+from Location import *
 
 class XYKoordinatenLabtops:
 

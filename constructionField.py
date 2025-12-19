@@ -1,10 +1,11 @@
 import math
 import pyautogui
 from mouseMovement import MouseMovement 
-from locationVariable import *
+from Location import *
 import numpy
 import time
-from startingValues import XYKoordinatenLabtops
+from CoordinatesLaptops import XYKoordinatenLabtops
+import cv2
 
 
 
@@ -87,15 +88,11 @@ class Acker:
         self.mouseMovement.moveTo(x,y)
         self.mouseMovement.leftClick()
 
-    def clickOnFields(self):
-        startX = 943
-        startY = 480
-        stopX = 1215
-        stopY = 711
-        diffX = (stopX - startX)
-        diffY = (stopY - startY)
-        width, height = 40, 40
-        
+    def checkEverySingleField(self):
+        for row in range(self.AckerRows):
+            for col in range(self.AckerColumns):
+                self.fieldArray[col][row].setIsFreeFromWeeds(row, col)
+                print(f'row: {row +1}, col: {col+1}, isFreeFromWeed: {self.fieldArray[col][row].getIsFreeFromWeeds()}')
 
 
 
@@ -126,11 +123,41 @@ class SingleField:
         self.yEnd = yBegin + 35
         self.connenctedCrop = connectedCrop
 
+    def getConfidenceFromTwoPictures(self, pictureLink, screenshot):
+        pictureField = cv2.imread(pictureLink, 0)
+
+        res = cv2.matchTemplate(pictureField, screenshot, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, _ = cv2.minMaxLoc(res)
+        return max_val
+    
+    def setIsFreeFromWeeds(self, row, col):
+        vergleichsBilder = ["sc/acker/bugsGrey.png","sc/acker/darkStoneGrey.png","sc/acker/grassGrey.png","sc/acker/whiteStoneGrey.png","sc/acker/emptyTileGrey.png"]
+        screenshot = pyautogui.screenshot(region=(self.xBegin - 5, self.yBegin-3, 40, 40))
+        screenshot_cv = cv2.cvtColor(numpy.array(screenshot), cv2.COLOR_RGB2GRAY)
+        cv2.imwrite(f'screenshotsAcker/{row}-{col}-gray.png', screenshot_cv)
+        highestScore = 0
+        best_bild = None
+        for bild in vergleichsBilder:
+            conf = self.getConfidenceFromTwoPictures(bild, screenshot_cv)
+            if conf > highestScore:
+                highestScore = conf
+                best_bild = bild
+        print(f'{best_bild} confidence: {highestScore}')
+        if (best_bild == "sc/acker/emptyTile.png"):
+            return
+        else:
+            self.isFreeFromWeeds = False
+
+    def getIsFreeFromWeeds(self):
+        return self.isFreeFromWeeds
+
     def getXBegin(self):
         return int(self.xBegin)
     
     def getYBegin(self):
         return int(self.yBegin)
+
+
 
 
 

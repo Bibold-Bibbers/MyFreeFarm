@@ -1,8 +1,8 @@
 import math
 import random
 import pyautogui
-from newArrayApproach import Acker
-from startingValues import XYKoordinatenLabtops
+from constructionField import Acker
+from CoordinatesLaptops import XYKoordinatenLabtops
 from mouseMovement import *
 import time
 import pyperclip

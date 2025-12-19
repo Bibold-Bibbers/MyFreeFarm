@@ -2,9 +2,9 @@ import pyautogui
 import pytesseract
 import time
 from WebsiteLogin import *
-from newArrayApproach import *
-from locationVariable import Location
-from startingValues import XYKoordinatenLabtops
+from constructionField import *
+from Location import Location
+from CoordinatesLaptops import XYKoordinatenLabtops
 
 
 
@@ -53,7 +53,12 @@ MacCoordinates = XYKoordinatenLabtops(isMac=True,
 
 
 ackerEins = Acker(ackerLoc, erntenSymbolLoc, anpflanzenSymbolLoc, waterSymbolLoc, MacCoordinates)
-time.sleep(5)
+time.sleep(2)
+ackerEins.checkEverySingleField()
+
+
+
+"""
 websiteLogin = WebsiteLogin(MacCoordinates) 
 websiteLogin.searchBrowserURL()
 websiteLogin.loginFromHomePage()
@@ -61,7 +66,7 @@ websiteLogin.loginFromHomePage()
 
 
 
-"""
+
 Acker X 940 Y 411
 Anpflanzen X 977 Y 390
 Ernten X 1090 Y385
