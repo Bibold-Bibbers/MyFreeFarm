@@ -25,10 +25,19 @@ carrot = 'sc/carrot.png'
 wheat = 'sc/wheat.png'
 anbauPflanze = 'sc/carrotZumAnbauen.png'
 
+
+"""
 ackerLoc = Location(900, 380, 80, 80)
 anpflanzenSymbolLoc = Location(960, 375, 40, 30)
 waterSymbolLoc = Location(1020,375, 20, 20)
 erntenSymbolLoc = Location(1070, 375, 40, 30)
+"""
+
+ackerLoc = Location(900, 380, 80, 80)
+anpflanzenSymbolLoc = Location(670, 330, 25, 30)
+waterSymbolLoc = Location(740,335, 25, 30)
+erntenSymbolLoc = Location(820, 335, 40, 30)
+
 #LinuxCoordinates = XYKoordinatenLabtops(xStart=850, xEnd=1330, yStart=470, yEnd=870)
 
 MacCoordinates = XYKoordinatenLabtops(isMac=True,
@@ -54,9 +63,11 @@ MacCoordinates = XYKoordinatenLabtops(isMac=True,
 
 ackerEins = Acker(ackerLoc, erntenSymbolLoc, anpflanzenSymbolLoc, waterSymbolLoc, MacCoordinates)
 time.sleep(2)
-ackerEins.checkEverySingleField()
+ackerEins.checkEverySingleFieldForWeeds()
+time.sleep(2)
 
-
+###Plant auswählen funktioniert noch nicht, aber ernten schon gut. Also die Methode clickonEveryFreeField
+ackerEins.harvestPlantWater('sc/strawberry.png')
 
 """
 websiteLogin = WebsiteLogin(MacCoordinates) 

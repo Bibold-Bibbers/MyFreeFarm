@@ -1,5 +1,7 @@
 from Location import *
 import pyautogui
+import time
+import random
 
 class MouseMovement:
     def __init__(self):
@@ -18,3 +20,8 @@ class MouseMovement:
 
     def write(self, text : str):
         pyautogui.write(text, interval=0.1)
+
+    def moveToAndLeftClick(self,x,y):
+        self.moveTo(x,y)
+        time.sleep(random.gauss(0.1,0.04))
+        self.leftClick()

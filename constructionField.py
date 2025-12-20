@@ -10,6 +10,11 @@ import cv2
 
 
 class Acker:
+    #Time in Hours
+    TIME_PLANT = {
+        "test" : 8
+    }
+
     def __init__(self, AckerPos : Location, ernteSymbolPos : Location, pflanzenSymbolPos : Location, waterSymbolPos : Location, startingCordinates : XYKoordinatenLabtops):
         self.AckerPos = AckerPos
         self.startingCoordinates = startingCordinates
@@ -18,31 +23,24 @@ class Acker:
         self.ernteSymbolPos = ernteSymbolPos
         self.pflanzenSymbolPos = pflanzenSymbolPos
         self.waterSymbolPos = waterSymbolPos
+        self.startingPlantTime = None
         self.mouseMovement = MouseMovement()
+
+        ###Zuerst Col dann row
         self.fieldArray = numpy.empty((self.AckerColumns, self.AckerRows), dtype=object)
 
-        self.fillFullFieldArray(True)
+        self.fillFullFieldArray()
 
-    def fillFullFieldArray(self, full :bool):
-        if full:
-            startingX = self.startingCoordinates.getXStart()
-            for col in range(self.AckerColumns):
-                startingY = self.startingCoordinates.getYStart()
-                for row in range(self.AckerRows):
-                    self.fieldArray[col][row] = SingleField(True, None, None, startingX, startingY, None)
-                    startingY += 40
-                startingX += 40
-        else:
-            ##Muss noch angepasst werden mit den startingCoordinates
-            AckerRows = 6
-            AckerColumns = 7
-            startingX = 930
-            for col in range(AckerColumns):
-                startingY = 460
-                for row in range(AckerRows):
-                    self.fieldArray[col][row] = SingleField(True, None, None, startingX, startingY, None)
-                    startingY += 40
-                startingX += 40
+    def fillFullFieldArray(self):
+        startingX = self.startingCoordinates.getXStart()
+        for col in range(self.AckerColumns):
+            startingY = self.startingCoordinates.getYStart()
+            for row in range(self.AckerRows):
+                self.fieldArray[col][row] = SingleField(True, None, None, startingX, startingY, None)
+                #print(f'col:{col+1} - row{row+1} - startX:{startingX} - startingY:{startingY}')
+                startingY += 40
+            startingX += 40
+
             
 
 
@@ -62,6 +60,8 @@ class Acker:
         self.mouseMovement.leftClick()
 
     def erntePflanzen(self, pflanzenScreenshot):
+
+        ##Old Function that uses locateOnScreen to get the plants
         position = pyautogui.locateAllOnScreen(pflanzenScreenshot, confidence=0.9)
         for pflanze in position:
             locationPflanze = makeLocationWithPosition(pflanze)
@@ -82,13 +82,13 @@ class Acker:
         self.mouseMovement.leftClick()
        
     def selectPlant(self, plantImage):
-        screenLocate = pyautogui.locateOnScreen(plantImage, confidence=0.95)
+        screenLocate = pyautogui.locateOnScreen(plantImage, confidence=0.90)
         location = makeLocationWithPosition(screenLocate)
         x,y = location.getRandomXAndY()
         self.mouseMovement.moveTo(x,y)
         self.mouseMovement.leftClick()
 
-    def checkEverySingleField(self):
+    def checkEverySingleFieldForWeeds(self):
         fieldsFreeFromStuff = 0
         for row in range(self.AckerRows):
             for col in range(self.AckerColumns):
@@ -97,20 +97,44 @@ class Acker:
 
         print(fieldsFreeFromStuff)
 
+    def calculateCostToFreeField(self):
+        totalCost = 0
+        for row in range(self.AckerRows):
+            for col in range(self.AckerColumns):
+                cost = self.fieldArray[col][row].getPriceOfWeed()
+                totalCost += cost
+                #print(f'{self.fieldArray[col][row].getTypeOfWeed()} --- {cost} ----row:{row} -- col: {col}')
+        print(totalCost)
 
-    def harvestPlantWater(self, fertigePflanzenPfad, anbauPflanzePfad, withHarvest: bool =True, withWater: bool =True, withPlanting: bool =True):
+    
+    
+
+    def harvestPlantWater(self, anbauPflanzePfad, withHarvest: bool =True, withWater: bool =True, withPlanting: bool =True):
         if withHarvest:
             self.goIntoHarvestMode()
-            for pflanzePfad in fertigePflanzenPfad:
-                self.erntePflanzen(pflanzePfad)
+            self.leftClickOnEveryFreeField()
         if withPlanting:
             self.goIntoPlantMode()
             self.selectPlant(anbauPflanzePfad)
-            self.clickOnFields()
+            self.leftClickOnEveryFreeField()
         if withWater:
             self.goIntoWaterMode()
-            self.clickOnFields()
-        
+            self.leftClickOnEveryFreeField()
+
+    def leftClickOnEveryFreeField(self):
+        for row in range(self.AckerRows):
+            for col in range(self.AckerColumns):
+                ##If it is free from Weed move to it and left click it
+                print(f'Field Col:{col}-Row{row} --- isFreeFromWeed {self.fieldArray[col][row].getIsFreeFromWeeds()} ')
+
+                if self.fieldArray[col][row].getIsFreeFromWeeds():
+                    x = self.fieldArray[col][row].getXBegin()
+                    y = self.fieldArray[col][row].getYBegin()
+                    location = Location(x,y,40,40)
+                    x,y = location.getRandomXAndY()
+                    #self.mouseMovement.moveToAndLeftClick(x,y)
+                    self.mouseMovement.moveTo(x,y)
+            
 
 
 class SingleField:
@@ -118,7 +142,7 @@ class SingleField:
     WEED_COST = {
         "sc/acker/grassGrey.png" : 2.5,
         "sc/acker/darkStoneGrey.png" : 30,
-        "sc/acker/whiteStone.png" : 180,
+        "sc/acker/whiteStoneGrey.png" : 180,
         "sc/acker/bugsGrey.png" : 500
     }
 
@@ -160,7 +184,7 @@ class SingleField:
         else:
             if (highestScore < 0.5):
                 self.isFreeFromWeeds = True
-                print(f'Hier ist ein Tile das nicht erkannt wurde - row:{row+1}, col{col+1}, confidence:{highestScore} ----- Best Bild:{best_bild}')
+                #print(f'Hier ist ein Tile das nicht erkannt wurde - row:{row+1}, col{col+1}, confidence:{highestScore} ----- Best Bild:{best_bild}')
                 return 1
             else:
                 self.isFreeFromWeeds = False
@@ -168,7 +192,10 @@ class SingleField:
                 return 0
             
     def getPriceOfWeed(self):
-        return self.WEED_COST[self.typeOfWeed, 0]
+        return self.WEED_COST.get(self.typeOfWeed, 0)
+    
+    def getTypeOfWeed(self):
+        return self.typeOfWeed
 
 
     def getIsFreeFromWeeds(self):
