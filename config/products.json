@@ -1,0 +1,7 @@
+{
+    "products": {
+        "carrot": "sc/InventoryEntities/CarrotEntity.png",
+        "strawberry": "sc/InventoryEntities/StrawberryEntity.png",
+        "wheat": "sc/InventoryEntities/WheatEntity.png"
+    }
+}

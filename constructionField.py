@@ -6,6 +6,7 @@ import numpy
 import time
 from CoordinatesLaptops import XYKoordinatenLabtops
 import cv2
+from InventoryManager import *
 
 
 
@@ -15,16 +16,22 @@ class Acker:
         "test" : 8
     }
 
-    def __init__(self, AckerPos : Location, ernteSymbolPos : Location, pflanzenSymbolPos : Location, waterSymbolPos : Location, startingCordinates : XYKoordinatenLabtops):
+    def __init__(self, AckerPos : Location = None, startingCordinates : XYKoordinatenLabtops = None, isMac = True):
         self.AckerPos = AckerPos
-        self.startingCoordinates = startingCordinates
         self.AckerRows = 10
         self.AckerColumns = 12
-        self.ernteSymbolPos = ernteSymbolPos
-        self.pflanzenSymbolPos = pflanzenSymbolPos
-        self.waterSymbolPos = waterSymbolPos
         self.startingPlantTime = None
+
+
+        self.isMac = isMac
+        self.startingCoordinates = self.setStartingXYFromAcker()
+        self.ernteSymbolPos = self.setHarvestLoc()
+        self.pflanzenSymbolPos = self.setPlantLoc()
+        self.waterSymbolPos = self.setWaterLoc()
+
         self.mouseMovement = MouseMovement()
+        self.inventoryManager = InventoryManager(startingCordinates)
+        self.inventoryManager.searchForEntities()
 
         ###Zuerst Col dann row
         self.fieldArray = numpy.empty((self.AckerColumns, self.AckerRows), dtype=object)
@@ -41,6 +48,66 @@ class Acker:
                 startingY += 40
             startingX += 40
 
+    def setStartingXYFromAcker(self):
+        ###Noch anpassen das es direkt rein kommt
+        screenshot = pyautogui.screenshot()
+        target = cv2.imread('sc/acker/holeAcker.png')
+        screenshot = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
+        result = cv2.matchTemplate(screenshot, target, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_lox= cv2.minMaxLoc(result)
+        print("Acker")
+        x,y = max_lox
+        if (self.isMac == True): 
+            x = x//2
+            y = y//2
+        print(max_val, max_lox)
+
+        return Location(x,y, 25,30)
+        
+
+
+
+    def setPlantLoc(self):
+        screenshot = pyautogui.screenshot()
+        target = cv2.imread('sc/acker/plant.png')
+        screenshot = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
+        result = cv2.matchTemplate(screenshot, target, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_lox= cv2.minMaxLoc(result)
+        x,y = max_lox
+        if (self.isMac == True): 
+            x = x//2
+            y = y//2
+        print("Plant")
+        print(max_val, max_lox)
+        return Location(x,y, 25,30)
+
+    def setWaterLoc(self):
+        screenshot = pyautogui.screenshot()
+        target = cv2.imread('sc/acker/water.png')
+        screenshot = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
+        result = cv2.matchTemplate(screenshot, target, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_lox= cv2.minMaxLoc(result)
+        x,y = max_lox
+        if (self.isMac == True): 
+            x = x//2
+            y = y//2
+        print("Water")
+        print(max_val, max_lox)
+        return Location(x,y, 25,30)
+    
+    def setHarvestLoc(self):
+        screenshot = pyautogui.screenshot()
+        target = cv2.imread('sc/acker/harvest.png')
+        screenshot = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
+        result = cv2.matchTemplate(screenshot, target, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_lox= cv2.minMaxLoc(result)
+        x,y = max_lox
+        if (self.isMac == True): 
+            x = x//2
+            y = y//2
+        print("Harvest")
+        print(max_val, max_lox)
+        return Location(x,y, 25,30)
             
 
 
@@ -115,7 +182,7 @@ class Acker:
             self.leftClickOnEveryFreeField()
         if withPlanting:
             self.goIntoPlantMode()
-            self.selectPlant(anbauPflanzePfad)
+            self.inventoryManager.selectProduct('strawberr')
             self.leftClickOnEveryFreeField()
         if withWater:
             self.goIntoWaterMode()
@@ -125,17 +192,16 @@ class Acker:
         for row in range(self.AckerRows):
             for col in range(self.AckerColumns):
                 ##If it is free from Weed move to it and left click it
-                print(f'Field Col:{col}-Row{row} --- isFreeFromWeed {self.fieldArray[col][row].getIsFreeFromWeeds()} ')
+                #print(f'Field Col:{col}-Row{row} --- isFreeFromWeed {self.fieldArray[col][row].getIsFreeFromWeeds()} ')
 
                 if self.fieldArray[col][row].getIsFreeFromWeeds():
                     x = self.fieldArray[col][row].getXBegin()
                     y = self.fieldArray[col][row].getYBegin()
                     location = Location(x,y,40,40)
                     x,y = location.getRandomXAndY()
-                    #self.mouseMovement.moveToAndLeftClick(x,y)
-                    self.mouseMovement.moveTo(x,y)
+                    self.mouseMovement.moveToAndLeftClick(x,y)
+                    #self.mouseMovement.moveTo(x,y)
             
-
 
 class SingleField:
 
@@ -182,7 +248,7 @@ class SingleField:
             self.isFreeFromWeeds = True
             return 1
         else:
-            if (highestScore < 0.5):
+            if (highestScore < 0.4):
                 self.isFreeFromWeeds = True
                 #print(f'Hier ist ein Tile das nicht erkannt wurde - row:{row+1}, col{col+1}, confidence:{highestScore} ----- Best Bild:{best_bild}')
                 return 1
