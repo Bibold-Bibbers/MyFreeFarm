@@ -25,7 +25,6 @@ class Chicken:
             self.mouseMovement.leftClick()
     
     def enterFeedingAmount(self):
-        ##Here ist the problem
         locEnterAmount = getCoordinatesRGB("sc/constructionBuildings/enterFeedingAmount.png", 50,15,self.isMac)
         if locEnterAmount == False:
             return

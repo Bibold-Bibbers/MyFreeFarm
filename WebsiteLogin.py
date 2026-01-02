@@ -3,6 +3,7 @@ import random
 import pyautogui
 from constructionField import Acker
 from CoordinatesLaptops import XYKoordinatenLabtops
+from getCoordinates import *
 from mouseMovement import *
 import time
 import pyperclip
@@ -25,9 +26,7 @@ class WebsiteLogin:
         pyautogui.press('enter', interval=0.1)
         time.sleep(0.4)
 
-    def loginFromHomePage(self):
-        email = "yobegag893@discounp.com"
-
+    def loginFromHomePage(self, email, password):
         x,y = self.computerKoorinates.getLoginRandominizedXY()
         self.mouseMovement.moveTo(x,y)
         self.mouseMovement.leftClick()
@@ -38,7 +37,6 @@ class WebsiteLogin:
         x,y = self.computerKoorinates.getLoginPWRandominizedXY()
         self.mouseMovement.moveTo(x,y)
         self.mouseMovement.leftClick()
-        password = "XTRXY7WR7@4PA)i"
         self.copyPaste(password)
         time.sleep(random.gauss(0.34,0.18))
 
@@ -53,3 +51,12 @@ class WebsiteLogin:
             pyautogui.hotkey('command', 'v')
         else:
             pyautogui.hotkey('ctrl', 'v')
+    
+    def logOut(self):
+        location = getCoordinatesRGB("sc/logoutButton.png", 60, 8, self.isMac)
+        if location == False:
+            print("Fehler bei Logout ----")
+        else:
+            self.mouseMovement.moveToLocation(location)
+            self.mouseMovement.leftClick()
+            time.sleep(0.2)

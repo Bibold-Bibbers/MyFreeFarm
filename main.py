@@ -1,12 +1,15 @@
 import pyautogui
 import pytesseract
 import time
+import json
 from WebsiteLogin import *
 from constructionField import *
 from constructionChicken import *
 from constructionCow import *
 from Location import Location
 from CoordinatesLaptops import XYKoordinatenLabtops
+from farmManager import FarmManager
+from RemoveAds import *
 
 
 
@@ -27,20 +30,32 @@ MacCoordinates = XYKoordinatenLabtops(isMac=True,
                                     yLoginButton=180)
 
 
+websiteLogin = WebsiteLogin(MacCoordinates)
+mouseMovement = MouseMovement()
+farmManager = FarmManager()
+websiteLogin.searchBrowserURL()
+time.sleep(4)
+# 1. Datei öffnen und laden
+with open('config/accounts.json', 'r') as file:
+    users = json.load(file)
+
+for user in users:
+    email = user['email'] 
+    passwort = user['password']
+    websiteLogin.loginFromHomePage(email, passwort)
+    time.sleep(3)
+    checkForAdds(MacCoordinates.getIsMac(), mouseMovement)
+    farmManager.getAllFields()
+    time.sleep(1)
+    websiteLogin.logOut()
+    time.sleep(2)
 
 
-time.sleep(2)
-mouse = MouseMovement()
-chicken = Chicken(15,True,True,mouse)
 
 
-ret = getAllCoordinatesRGB("sc/constructionBuildings/chickenFarm.png", 70, 70, True, 0.5)
-print(ret)
-for location in ret:
-    x, y = location.getRandomXAndY()
-    time.sleep(0.8)
-    mouse.moveToAndLeftClick(x,y)
-    chicken.feedChicken()
+#time.sleep(2)
+#farmManager = FarmManager()
+#farmManager.getAllFields()
     
 
 

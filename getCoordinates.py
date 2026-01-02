@@ -24,7 +24,7 @@ def getCoordinatesRGB(target_path, width, height, isMac, confidence = 0.8):
     result = cv2.matchTemplate(screenshot, target, cv2.TM_CCOEFF_NORMED)
     _, max_val, _, max_lox= cv2.minMaxLoc(result)
     if max_val < confidence:
-        print(f'Hier ist die Confidence unter max_val-targetPath:{target_path}-confidence:{confidence} - Es wird False Returned')
+        print(f'Hier ist die Confidence unter max_val-targetPath:{target_path}-confidence:{confidence} - Es wird False Returned - Das ist die max_val: {max_val}')
         return False
 
     x,y = max_lox
