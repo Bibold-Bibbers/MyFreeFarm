@@ -11,10 +11,15 @@ class Chicken:
         self.mouseMovement = mouseMovement
 
     def feedChicken(self):
+        time.sleep(0.1)
         self.acceptProductsIfThere()
+        time.sleep(0.1)
+
         locationWheat = getCoordinatesRGB("sc/chicken/wheatForChicken.png", 25, 25, self.isMac)
         self.mouseMovement.moveToLocation(locationWheat)
         self.mouseMovement.leftClick()
+        time.sleep(0.1)
+
         self.enterFeedingAmount()
         self.closeWindow()
 

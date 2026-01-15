@@ -33,6 +33,8 @@ MacCoordinates = XYKoordinatenLabtops(isMac=True,
 websiteLogin = WebsiteLogin(MacCoordinates)
 mouseMovement = MouseMovement()
 farmManager = FarmManager()
+
+
 websiteLogin.searchBrowserURL()
 time.sleep(4)
 # 1. Datei öffnen und laden
@@ -45,6 +47,7 @@ for user in users:
     websiteLogin.loginFromHomePage(email, passwort)
     time.sleep(3)
     checkForAdds(MacCoordinates.getIsMac(), mouseMovement)
+    time.sleep(0.3)
     farmManager.getAllFields()
     time.sleep(1)
     websiteLogin.logOut()
@@ -56,7 +59,7 @@ for user in users:
 #time.sleep(2)
 #farmManager = FarmManager()
 #farmManager.getAllFields()
-    
+
 
 
 
