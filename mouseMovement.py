@@ -3,8 +3,6 @@ import time
 import random
 import numpy as np
 
-# Falls du Type-Hinting nutzen willst (optional):
-# from Location import Location 
 
 class MouseMovement:
     def __init__(self):
@@ -12,14 +10,11 @@ class MouseMovement:
         self.sqrt5 = np.sqrt(5)
 
     def moveToLocation(self, location):
-        # KORREKTUR: Methode direkt auf der Instanz 'location' aufrufen
         x, y = location.getRandomXAndY() 
         self.moveTo(x, y)
 
     def moveTo(self, dest_x, dest_y, G_0=9, W_0=3, M_0=15, D_0=12):
-        """
-        Bewegt die Maus mit dem WindMouse-Algorithmus zum Ziel.
-        """
+
         start_x, start_y = pyautogui.position()
         current_x, current_y = start_x, start_y
         

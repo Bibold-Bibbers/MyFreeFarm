@@ -2,14 +2,14 @@ import pyautogui
 import pytesseract
 import time
 import json
-from WebsiteLogin import *
+from websiteLogin import *
 from constructionField import *
 from constructionChicken import *
 from constructionCow import *
-from Location import Location
-from CoordinatesLaptops import XYKoordinatenLabtops
+from location import Location
+from coordinatesLaptops import XYKoordinatenLabtops
 from farmManager import FarmManager
-from RemoveAds import *
+from removeAds import *
 
 
 

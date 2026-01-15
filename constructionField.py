@@ -1,12 +1,12 @@
 import math
 import pyautogui
 from mouseMovement import MouseMovement 
-from Location import *
+from location import *
 import numpy
 import time
-from CoordinatesLaptops import XYKoordinatenLabtops
+from coordinatesLaptops import XYKoordinatenLabtops
 import cv2
-from InventoryManager import *
+from inventoryManager import *
 
 
 

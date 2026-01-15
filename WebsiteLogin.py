@@ -2,7 +2,7 @@ import math
 import random
 import pyautogui
 from constructionField import Acker
-from CoordinatesLaptops import XYKoordinatenLabtops
+from coordinatesLaptops import XYKoordinatenLabtops
 from getCoordinates import *
 from mouseMovement import *
 import time

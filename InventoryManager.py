@@ -3,8 +3,8 @@ import pyautogui
 import cv2
 import numpy as np
 import time
-from Location import Location
-from CoordinatesLaptops import XYKoordinatenLabtops
+from location import Location
+from coordinatesLaptops import XYKoordinatenLabtops
 from mouseMovement import MouseMovement
 
 
